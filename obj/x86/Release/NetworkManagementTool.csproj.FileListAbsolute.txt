@@ -1,9 +1,0 @@
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\bin\Release\NetworkManagementTool.exe
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\bin\Release\NetworkManagementTool.pdb
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\obj\x86\Release\ResolveAssemblyReference.cache
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\obj\x86\Release\NetworkManagementTool.MainDialog.resources
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\obj\x86\Release\NetworkManagementTool.Properties.Resources.resources
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\obj\x86\Release\GenerateResource.read.1.tlog
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\obj\x86\Release\GenerateResource.write.1.tlog
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\obj\x86\Release\NetworkManagementTool.exe
-C:\Documents and Settings\lmatt\My Documents\Visual Studio 2010\Projects\TestForSql\NetworkManagementTool\obj\x86\Release\NetworkManagementTool.pdb
