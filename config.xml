@@ -1,0 +1,26 @@
+<config>
+<profile name="1234">
+<ip>123.234.222.223</ip>
+<mask>255.255.255.0</mask>
+<gateway></gateway>
+<maindns></maindns>
+<seconddns></seconddns>
+</profile>
+<profile name="123">
+<dhcp>true</dhcp>
+</profile>
+<profile name="12345">
+<ip>123.234.222.223</ip>
+<mask>255.255.255.0</mask>
+<gateway></gateway>
+<maindns></maindns>
+<seconddns></seconddns>
+</profile>
+<profile name="123456">
+<ip>123.234.222.223</ip>
+<mask>255.255.255.0</mask>
+<gateway></gateway>
+<maindns></maindns>
+<seconddns></seconddns>
+</profile>
+</config>
