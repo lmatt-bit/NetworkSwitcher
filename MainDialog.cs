@@ -22,6 +22,7 @@ namespace NetworkManagementTool
         const uint BCM_SETSHIELD = 0x0000160C;
 
         private string configFileName = ".\\config.xml";
+        private string tempBatchFile = ".\\run.bat";
         private string regName = "NetworkManagementSimplifyTool";
         private List<NetworkConfig> networkconfigs = new List<NetworkConfig>(); 
         public MainDialog()
@@ -189,65 +190,90 @@ namespace NetworkManagementTool
         private bool executeCMD(string commandLine, bool runAsAdmin = false)
         {
             ProcessStartInfo ps = new ProcessStartInfo();
-            ps.RedirectStandardOutput = true;
-            ps.RedirectStandardError = true;
-            ps.UseShellExecute = false;
+            //ps.RedirectStandardOutput = true;
+            //ps.RedirectStandardError = true;
+            //ps.UseShellExecute = false; if set useshellexecute to false, then cannot use runas.
             ps.CreateNoWindow = true;
             string[] cs = commandLine.Split(new char[]{' '}, 2);
             ps.FileName = cs[0];
-            ps.Arguments = cs[1];
-            if (runAsAdmin)
+            if(cs.Length > 1)
+                ps.Arguments = cs[1];
+            if (runAsAdmin && System.Environment.OSVersion.Version.Major >= 6)
             {
                 ps.Verb = "runas";
             }
 
-            Process proc = Process.Start(ps);
-            string so = proc.StandardOutput.ReadToEnd();
-            string se = proc.StandardError.ReadToEnd();
-            proc.WaitForExit();
+            try
+            {
+                Process proc = Process.Start(ps);
+                //string so = proc.StandardOutput.ReadToEnd();
+                //string se = proc.StandardError.ReadToEnd();
+                proc.WaitForExit();
+            }
+            catch (Win32Exception)
+            {
+                return false;
+            }
             return true;
         }
 
-        private bool changeNetworkConfig()
+        private bool generateBatch()
         {
-            if (isProfileOk())
+            string networkInf = "本地连接";
+
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempBatchFile, false, Encoding.Default))
             {
-                this.Hide();
-                this.WindowState = FormWindowState.Minimized;
-                string networkInf = "本地连接";
+
                 if (dhcpCheckBox.Checked)
                 {
-                    executeCMD("netsh interface ip set address \""+ networkInf + "\" dhcp");
-                    executeCMD("netsh interface ip set dns \"" + networkInf + "\" dhcp");
+                    file.WriteLine("netsh interface ip set address \"" + networkInf + "\" dhcp");
+                    file.WriteLine("netsh interface ip set dns \"" + networkInf + "\" dhcp");
                 }
                 else
                 {
                     if (string.IsNullOrEmpty(profileGateway.Text))
                     {
-                        executeCMD("netsh interface ip set address \"" + networkInf + "\" static " + profileIpaddress.Text
+                        file.WriteLine("netsh interface ip set address \"" + networkInf + "\" static " + profileIpaddress.Text
                                   + " " + profileMask.Text);
                     }
                     else
                     {
-                        executeCMD("netsh interface ip set address \"" + networkInf + "\" static " + profileIpaddress.Text
+                        file.WriteLine("netsh interface ip set address \"" + networkInf + "\" static " + profileIpaddress.Text
                                   + " " + profileMask.Text + " " + profileGateway.Text + " 1");
                     }
 
                     if (string.IsNullOrEmpty(profileMainDNS.Text))
                     {
-                        executeCMD("netsh interface ip set dns \"" + networkInf + "\" static none");
+                        file.WriteLine("netsh interface ip set dns \"" + networkInf + "\" static none");
                     }
                     else
                     {
-                        executeCMD("netsh interface ip set dns \"" + networkInf + "\" static " + profileMainDNS.Text);
+                        file.WriteLine("netsh interface ip set dns \"" + networkInf + "\" static " + profileMainDNS.Text);
                         if (!string.IsNullOrEmpty(profileSecondDNS.Text))
                         {
-                            executeCMD("netsh interface ip add dns \"" + networkInf + "\" " + profileSecondDNS.Text);
+                            file.WriteLine("netsh interface ip add dns \"" + networkInf + "\" " + profileSecondDNS.Text);
                         }
                     }
                 }
+            }
+            return true;
+        }
 
-                MessageBox.Show("网络配置修改成功", "消息");
+        private bool changeNetworkConfig()
+        {
+            if (isProfileOk() && generateBatch())
+            {
+                this.Hide();
+                this.WindowState = FormWindowState.Minimized;
+
+                if (executeCMD(tempBatchFile, true))
+                {
+                    MessageBox.Show("网络配置修改成功", "消息");
+                }
+                else
+                {
+                    MessageBox.Show("网络配置修改失败", "错误");
+                }
             }
             else
             {
