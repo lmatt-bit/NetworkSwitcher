@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("NetworkManagementTool")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("ict")]
+[assembly: AssemblyCompany("lmatt")]
 [assembly: AssemblyProduct("NetworkManagementTool")]
-[assembly: AssemblyCopyright("Copyright © ict 2011")]
+[assembly: AssemblyCopyright("Copyright © lmatt 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

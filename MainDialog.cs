@@ -10,11 +10,17 @@ using System.Xml;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Win32;
+using System.Security.Principal;
+using System.Runtime.InteropServices;
 
 namespace NetworkManagementTool
 {
     public partial class MainDialog : Form
     {
+        [DllImport("user32")]
+        static extern UInt32 SendMessage(IntPtr hWnd, UInt32 msg, UInt32 wParam, UInt32 lParam);
+        const uint BCM_SETSHIELD = 0x0000160C;
+
         private string configFileName = ".\\config.xml";
         private string regName = "NetworkManagementSimplifyTool";
         private List<NetworkConfig> networkconfigs = new List<NetworkConfig>(); 
@@ -22,6 +28,7 @@ namespace NetworkManagementTool
         {
             checkConfigFile();
             InitializeComponent();
+            setUACShield();
             loadAllConfig();
         }
 
@@ -40,14 +47,21 @@ namespace NetworkManagementTool
 
         private void disableManualConfig()
         {
-            
 
+            profileIpaddress.Enabled = false;
+            profileMask.Enabled = false;
+            profileGateway.Enabled = false;
+            profileMainDNS.Enabled = false;
+            profileSecondDNS.Enabled = false;
         }
 
         private void enableManualIPConfig()
         {
-
-
+            profileIpaddress.Enabled = true;
+            profileMask.Enabled = true;
+            profileGateway.Enabled = true;
+            profileMainDNS.Enabled = true;
+            profileSecondDNS.Enabled = true;
         }
 
         private bool isValidIpaddress(string ip)
@@ -172,7 +186,7 @@ namespace NetworkManagementTool
             changeNetworkConfig();
         }
 
-        private bool executeCMD(string commandLine)
+        private bool executeCMD(string commandLine, bool runAsAdmin = false)
         {
             ProcessStartInfo ps = new ProcessStartInfo();
             ps.RedirectStandardOutput = true;
@@ -182,6 +196,10 @@ namespace NetworkManagementTool
             string[] cs = commandLine.Split(new char[]{' '}, 2);
             ps.FileName = cs[0];
             ps.Arguments = cs[1];
+            if (runAsAdmin)
+            {
+                ps.Verb = "runas";
+            }
 
             Process proc = Process.Start(ps);
             string so = proc.StandardOutput.ReadToEnd();
@@ -374,6 +392,15 @@ namespace NetworkManagementTool
             this.WindowState = FormWindowState.Normal;
         }
 
+        private void setUACShield()
+        {  
+            WindowsPrincipal pri = new WindowsPrincipal(WindowsIdentity.GetCurrent());
+            if (!pri.IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                useButton.FlatStyle = FlatStyle.System;
+                SendMessage(useButton.Handle, BCM_SETSHIELD, 0, 1);
+            }
+        }
 
         private bool isAutoStart()
         {
@@ -467,5 +494,7 @@ namespace NetworkManagementTool
             return sb.ToString();
         }
     }
+
+
 
 }
