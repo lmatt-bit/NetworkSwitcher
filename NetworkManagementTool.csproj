@@ -80,7 +80,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="config.xml" />
+    <Content Include="config.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="network 2.ico" />
     <Content Include="README.txt" />
   </ItemGroup>
