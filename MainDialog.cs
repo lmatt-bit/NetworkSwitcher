@@ -27,6 +27,7 @@ namespace NetworkManagementTool
         private List<NetworkConfig> networkconfigs = new List<NetworkConfig>(); 
         public MainDialog()
         {
+            Directory.SetCurrentDirectory(Application.StartupPath);//change current dir
             checkConfigFile();
             InitializeComponent();
             setUACShield();
