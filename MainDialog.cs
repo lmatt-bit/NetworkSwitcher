@@ -380,6 +380,7 @@ namespace NetworkManagementTool
                 {
                     networkconfigs.RemoveAt(profileList.SelectedIndex);
                     updateProfileList();
+                    updateAllConfig();
                 }
             }
         }
