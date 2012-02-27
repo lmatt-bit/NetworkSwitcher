@@ -379,7 +379,6 @@ namespace NetworkManagementTool
                 if (MessageBox.Show("确定删除", "确定", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
                 {
                     networkconfigs.RemoveAt(profileList.SelectedIndex);
-                    updateProfileList();
                     updateAllConfig();
                 }
             }
