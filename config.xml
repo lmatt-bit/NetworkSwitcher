@@ -1,26 +1,22 @@
 <config>
-<profile name="1234">
-<ip>123.234.222.223</ip>
-<mask>255.255.255.0</mask>
-<gateway></gateway>
-<maindns></maindns>
-<seconddns></seconddns>
-</profile>
-<profile name="123">
+<profile name="test">
+<interface>无线网络连接</interface>
 <dhcp>true</dhcp>
 </profile>
-<profile name="12345">
-<ip>123.234.222.223</ip>
-<mask>255.255.255.0</mask>
-<gateway></gateway>
-<maindns></maindns>
-<seconddns></seconddns>
+<profile name="test1">
+<interface>本地连接</interface>
+<dhcp>true</dhcp>
 </profile>
-<profile name="123456">
-<ip>123.234.222.223</ip>
-<mask>255.255.255.0</mask>
-<gateway></gateway>
-<maindns></maindns>
-<seconddns></seconddns>
+<profile name="test2">
+<interface>本地连接</interface>
+<ip>123.123.123.123</ip>
+<mask>123.123.123.123</mask>
+<gateway>123.123.123.123</gateway>
+<maindns>123.123.123.123</maindns>
+<seconddns>123.123.123.123</seconddns>
+</profile>
+<profile name="中文">
+<interface>VirtualBox Host-Only Network</interface>
+<dhcp>true</dhcp>
 </profile>
 </config>

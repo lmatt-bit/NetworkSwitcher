@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Microsoft.Win32;
 using System.Security.Principal;
 using System.Runtime.InteropServices;
+using System.Net.NetworkInformation;
 
 namespace NetworkManagementTool
 {
@@ -24,19 +25,34 @@ namespace NetworkManagementTool
         private string configFileName = ".\\config.xml";
         private string tempBatchFile = ".\\run.bat";
         private string regName = "NetworkManagementSimplifyTool";
-        private List<NetworkConfig> networkconfigs = new List<NetworkConfig>(); 
+        private List<NetworkConfig> networkconfigs = new List<NetworkConfig>();
+        private List<string> networkInterfaces = new List<string>();
         public MainDialog()
         {
             Directory.SetCurrentDirectory(Application.StartupPath);//change current dir
             checkConfigFile();
             InitializeComponent();
+            loadNetworkInterfaces();
             setUACShield();
             loadAllConfig();
+        }
+
+        private void loadNetworkInterfaces()
+        {
+            foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet || nic.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                {
+                    networkInterfaces.Add(nic.Name);
+                    interfaceComboBox.Items.Add(nic.Name);
+                }
+            }
         }
 
         private bool isProfileOk()
         {
             if (dhcpCheckBox.Checked && string.IsNullOrEmpty(profileBox.Text) == false) return true;
+            if (networkInterfaces.Contains(interfaceComboBox.Text) == false) return false;
             if (isValidIpaddress(profileIpaddress.Text) == false) return false;
             if (isValidIpaddress(profileMask.Text) == false) return false;
 
@@ -49,7 +65,6 @@ namespace NetworkManagementTool
 
         private void disableManualConfig()
         {
-
             profileIpaddress.Enabled = false;
             profileMask.Enabled = false;
             profileGateway.Enabled = false;
@@ -88,6 +103,7 @@ namespace NetworkManagementTool
         private void onSaveButton(object sender, MouseEventArgs e)
         {
             string pname = profileBox.Text;
+            string pinterface = interfaceComboBox.Text;
             string pip = profileIpaddress.Text;
             string pmask = profileMask.Text;
             string pgateway = profileGateway.Text;
@@ -97,7 +113,7 @@ namespace NetworkManagementTool
 
             if (isProfileOk())
             {
-                NetworkConfig nc = new NetworkConfig(pname, dhcp, pip, pmask, pgateway, pmaindns, pseconddns);
+                NetworkConfig nc = new NetworkConfig(pname, pinterface, dhcp, pip, pmask, pgateway, pmaindns, pseconddns);
                 int find = -1;
                 int index = 0;
                 foreach (NetworkConfig t in networkconfigs)
@@ -161,6 +177,7 @@ namespace NetworkManagementTool
         private void updateDisplayConfig(NetworkConfig nc)
         {
             profileBox.Text = nc.name;
+            interfaceComboBox.Text = nc.interfaceName;
             dhcpCheckBox.Checked = nc.dhcp;
             profileIpaddress.Text = nc.ip;
             profileMask.Text = nc.mask;
@@ -220,7 +237,7 @@ namespace NetworkManagementTool
 
         private bool generateBatch()
         {
-            string networkInf = "本地连接";
+            string networkInf = interfaceComboBox.Text;
 
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(tempBatchFile, false, Encoding.Default))
             {
@@ -328,6 +345,7 @@ namespace NetworkManagementTool
                 {
                     string pname = prof.GetAttribute("name");
                     XmlNodeList pp = prof.GetElementsByTagName("dhcp");
+                    string pinterface = prof.GetElementsByTagName("interface").Item(0).FirstChild.Value;
                     string pip = "";
                     string pmask = "";
                     string pgateway = "";
@@ -347,7 +365,7 @@ namespace NetworkManagementTool
                         dhcp = false;
                     }
 
-                    networkconfigs.Add(new NetworkConfig(pname, dhcp, pip, pmask, pgateway, pmaindns, pseconddns));
+                    networkconfigs.Add(new NetworkConfig(pname, pinterface, dhcp, pip, pmask, pgateway, pmaindns, pseconddns));
                 }
 
                 updateProfileList();
@@ -482,6 +500,7 @@ namespace NetworkManagementTool
     public class NetworkConfig
     {
         public string name;
+        public string interfaceName;
         public bool dhcp;
         public string ip;
         public string mask;
@@ -489,7 +508,7 @@ namespace NetworkManagementTool
         public string maindns;
         public string seconddns;
 
-        public NetworkConfig(string name, bool dhcp, string ip, string mask, string gateway, string maindns, string seconddns)
+        public NetworkConfig(string name, string interfaceName, bool dhcp, string ip, string mask, string gateway, string maindns, string seconddns)
         {
             this.name = name;
             this.dhcp = dhcp;
@@ -498,12 +517,14 @@ namespace NetworkManagementTool
             this.gateway = gateway;
             this.maindns = maindns;
             this.seconddns = seconddns;
+            this.interfaceName = interfaceName;
         }
 
         public string toXMLString()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("<profile name=\"{0}\">\n", name);
+            sb.AppendFormat("<interface>{0}</interface>\n", interfaceName);
             if (dhcp)
             {
                 sb.Append("<dhcp>true</dhcp>\n");
@@ -521,7 +542,4 @@ namespace NetworkManagementTool
             return sb.ToString();
         }
     }
-
-
-
 }
